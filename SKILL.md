@@ -1,45 +1,65 @@
 ---
 name: node-modules-clean
-description: Finds and optionally deletes node_modules directories to reclaim disk space
+description: Finds and removes node_modules directories to reclaim disk space, with dry-run preview and size reporting.
 version: 0.1.0
 license: Apache-2.0
 ---
 
-# node-modules-clean
+# Node Modules Clean
 
-Finds all `node_modules` directories under a given path, shows how much space each consumes, and optionally deletes them to reclaim disk space.
+## Purpose
 
-## Instructions
+Find all `node_modules` directories under a given path and optionally delete them to reclaim disk space. Shows sizes per project so you can see where your disk space went. Supports dry-run mode to preview before deleting.
 
-When a user wants to clean up node_modules directories:
+## Quick Start
 
-1. Run `./scripts/run.sh <path>` to scan for node_modules directories (dry-run by default)
-2. Review the output showing each directory and its size
-3. If the user confirms, run with `--delete` to actually remove them
-4. The tool shows a total space reclaimed summary after deletion
+```bash
+$ ./scripts/run.sh ~/Projects --dry-run
+Found 5 node_modules directories (2.3GB total):
 
-## Input Contract
+  450MB  my-app/node_modules
+  380MB  dashboard/node_modules
+  ...
 
-| Input | Type | Required | Default | Description |
-|-------|------|----------|---------|-------------|
-| `path` | positional | no | `$HOME` | Root directory to scan |
-| `--delete` | flag | no | false | Actually delete found directories |
-| `--min-size` | string | no | `0` | Minimum size to report (e.g., `100M`, `1G`) |
-| `--json` | flag | no | false | JSON output |
-| `--help` | flag | no | false | Show usage |
+Dry run — no files deleted.
+```
 
-## Output Contract
+## Usage Examples
 
-**Dry-run mode** (default): List of node_modules paths with sizes, sorted largest first. Exit code 0.
+### Preview (Dry Run)
 
-**Delete mode**: List of deleted paths with sizes and a total reclaimed summary. Exit code 0 on success, 1 on any deletion failure.
+```bash
+$ ./scripts/run.sh ~ --dry-run
+```
 
-**JSON mode**: Array of objects with `path`, `size_bytes`, and `size_human` fields.
+### Actually Delete
+
+```bash
+$ ./scripts/run.sh ~/Projects
+```
+
+### JSON Output
+
+```bash
+$ ./scripts/run.sh . --json --dry-run
+```
+
+## Options Reference
+
+| Flag          | Default | Description                     |
+|---------------|---------|---------------------------------|
+| `--dry-run`   | false   | Preview without deleting        |
+| `--json`      | false   | Output as JSON                  |
+| `--max-depth` | 10      | Maximum search depth            |
+| `--help`      |         | Show usage                      |
 
 ## Error Handling
 
-| Error | Exit Code | Message |
-|-------|-----------|---------|
-| Path does not exist | 1 | `Error: path '<path>' does not exist` |
-| No node_modules found | 0 | `No node_modules directories found` |
-| Permission denied on delete | 1 | Reports the failed path but continues |
+| Exit Code | Meaning            |
+|-----------|--------------------|
+| 0         | Success            |
+| 1         | Usage/input error  |
+
+## Validation
+
+Run `scripts/test.sh` — 6 assertions.
